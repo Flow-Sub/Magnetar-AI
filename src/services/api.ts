@@ -1,8 +1,4 @@
-import { ChatMessage } from '../types';
 
-export const DIRECT_API_URL = 'https://n8n.magnetarsolutions.com/models/api/generate';
-
-export const AVAILABLE_MODELS = [
   {
     id: 'qwen3:1.7b',
     name: 'qwen3:1.7b',
@@ -59,7 +55,7 @@ export async function generateOllamaResponse({
   model = 'qwen3:1.7b',
   prompt,
   history = [],
-  timeoutMs = 60000,
+  timeoutMs = 180000,
 }: GenerateOptions): Promise<string> {
   const fullPrompt = buildContextPrompt(history, prompt);
 
@@ -95,42 +91,7 @@ export async function generateOllamaResponse({
     console.warn('[Magnetar AI] Proxy request error, falling back to direct endpoint:', proxyErr);
   }
 
-  // Strategy 2: Direct POST to https://n8n.magnetarsolutions.com/models/api/generate
-  try {
-    const directRes = await fetch(DIRECT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!directRes.ok) {
-      const errText = await directRes.text().catch(() => 'Server error');
-      console.error(`[Magnetar AI] Direct API error (${directRes.status}):`, errText);
-      throw new Error(`Server returned ${directRes.status}`);
-    }
-
-    const data = await directRes.json();
-
-    // IMPORTANT: Return ONLY response, suppressing thinking
-    if (typeof data.response === 'string') {
-      return data.response;
-    }
-
-    throw new Error('No response text received from AI server.');
-  } catch (err: unknown) {
-    clearTimeout(timeoutId);
-    console.error('[Magnetar AI] Request failure:', err);
-
-    if (err instanceof Error && err.name === 'AbortError') {
-      throw new Error('Request timed out while waiting for AI response.');
-    }
-
-    throw new Error('Unable to connect to the AI server. Please try again.');
-  }
+  // Strategy 2 removed — direct browser calls cause CORS/cross-region issues.
+  // Always go through the server proxy.
+  throw new Error('Unable to connect to the AI server. Please try again.');
 }

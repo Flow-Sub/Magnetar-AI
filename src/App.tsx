@@ -94,11 +94,12 @@ export default function App() {
     setIsLoading(true);
 
     try {
-      // POST to real live endpoint https://n8n.magnetarsolutions.com/models/api/generate
+      // POST to real live endpoint via server proxy
       const responseText = await generateOllamaResponse({
         model: selectedModel,
         prompt: text,
         history: activeSession.messages,
+        timeoutMs: 180000,
       });
 
       const assistantMessage: ChatMessage = {
@@ -184,6 +185,7 @@ export default function App() {
         model: selectedModel,
         prompt: userPrompt,
         history: historyBefore,
+        timeoutMs: 180000,
       });
 
       const newAssistantMessage: ChatMessage = {

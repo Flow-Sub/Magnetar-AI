@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const TARGET_OLLAMA_API =
   process.env.OLLAMA_API_URL || 'https://n8n.magnetarsolutions.com/models/api/generate';
 
-async function startServer() {
+export default async function handler(req: any, res: any) {
   const app = express();
   const PORT = 3000;
 
@@ -26,7 +26,11 @@ async function startServer() {
 
       console.log(`[Server] Proxying real Ollama request for model: ${model}`);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 min
+
       const response = await fetch(TARGET_OLLAMA_API, {
+        signal: controller.signal,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,5 +98,3 @@ async function startServer() {
     console.log(`[Server] Magnetar AI server running on http://0.0.0.0:${PORT}`);
   });
 }
-
-startServer();
