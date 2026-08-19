@@ -1,0 +1,6 @@
+{
+  "name": "Magnetar AI",
+  "description": "A modern, ChatGPT-style web chat interface connected to Ollama AI models with rich code previews, history management, and model selection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
